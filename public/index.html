@@ -305,10 +305,21 @@ Cada post debe ser ESPECÍFICO y AUTÉNTICO. Español rioplatense. Emojis natura
     setProgress(80, 'Puliendo el contenido...', 'Casi listo');
 
     const data = await res.json();
-    const text = data.content?.[0]?.text || '{}';
+    console.log('Respuesta API:', JSON.stringify(data).substring(0, 300));
+    let text = '';
+    if (data && data.content && data.content[0]) {
+      text = data.content[0].text || '{}';
+    } else {
+      text = typeof data === 'string' ? data : JSON.stringify(data);
+    }
     const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-
+    let parsed = {};
+    try { 
+      parsed = JSON.parse(clean); 
+    } catch(e) { 
+      const match = clean.match(/\{[\s\S]*"posts"[\s\S]*\}/);
+      if (match) { try { parsed = JSON.parse(match[0]); } catch(e2) {} }
+    }
     postsGenerados = parsed.posts || [];
     setProgress(100, '¡Listo!', '');
 
