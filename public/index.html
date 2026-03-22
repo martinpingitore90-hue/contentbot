@@ -227,7 +227,7 @@ select { cursor: pointer; }
 let tonoSeleccionado = 'cercano';
 let postsGenerados = [];
 
-const PROXY_URL = 'https://api.anthropic.com/v1/messages';
+const PROXY_URL = "/api/generate";
 const API_KEY = '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'; // ← Reemplazás esto con tu key
 
 const FORMATO_META = {
@@ -278,7 +278,7 @@ async function generar() {
 
     const res = await fetch(PROXY_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' },
+      headers: { 'Content-Type': 'application/json',   },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
