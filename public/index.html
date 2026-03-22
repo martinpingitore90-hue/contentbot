@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContentBot — Contenido para tu negocio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F4EE;
+  --white: #FDFAF5;
+  --ink: #1A1612;
+  --ink2: #5A5248;
+  --ink3: #9A9088;
+  --border: #E5DFD5;
+  --orange: #F25C1E;
+  --orange-light: #FFF0EA;
+  --green: #1A7A4A;
+  --green-light: #E8F5EE;
+  --radius: 18px;
+  --shadow: 0 4px 24px rgba(26,22,18,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Bricolage Grotesque', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+/* HERO */
+.hero { background: var(--white); border-bottom: 1.5px solid var(--border); padding: 60px 24px 48px; text-align: center; }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--orange-light); color: var(--orange); font-size: 11px; font-weight: 700; letter-spacing: 2px; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; }
+.hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; letter-spacing: -2px; line-height: 1.05; margin-bottom: 16px; }
+.hero h1 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--orange); }
+.hero p { font-size: 17px; color: var(--ink2); max-width: 480px; margin: 0 auto 32px; line-height: 1.7; }
+.hero-price { display: inline-flex; align-items: baseline; gap: 4px; background: var(--ink); color: #fff; padding: 14px 28px; border-radius: 12px; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 12px; }
+.hero-price span { font-size: 13px; font-weight: 400; opacity: 0.6; }
+.hero-note { font-size: 12px; color: var(--ink3); }
+
+/* FORM SECTION */
+.form-wrap { max-width: 620px; margin: 48px auto; padding: 0 20px 80px; }
+.step-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.step-num { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 1.5px; margin-bottom: 12px; }
+.step-num::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
+.step-title { font-size: 20px; font-weight: 800; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.3px; }
+.step-desc { font-size: 13px; color: var(--ink3); margin-bottom: 20px; line-height: 1.6; }
+
+label { display: block; font-size: 12px; font-weight: 700; color: var(--ink2); letter-spacing: 0.5px; margin-bottom: 6px; margin-top: 14px; }
+input, textarea, select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; font-family: inherit; color: var(--ink); background: var(--bg); outline: none; transition: border-color 0.2s; }
+input:focus, textarea:focus, select:focus { border-color: var(--orange); background: var(--white); }
+textarea { resize: vertical; min-height: 80px; }
+select { cursor: pointer; }
+
+/* TONO SELECTOR */
+.tono-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+.tono-opt { padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.18s; background: var(--bg); }
+.tono-opt:hover { border-color: var(--orange); }
+.tono-opt.selected { border-color: var(--orange); background: var(--orange-light); }
+.tono-opt .emoji { font-size: 20px; margin-bottom: 4px; }
+.tono-opt .name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.tono-opt .desc { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+
+/* GENERAR BTN */
+.btn-generar { width: 100%; background: var(--orange); color: #fff; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; font-family: inherit; transition: all 0.2s; letter-spacing: -0.3px; margin-top: 8px; }
+.btn-generar:hover { background: #D94D12; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(242,92,30,0.3); }
+.btn-generar:disabled { background: #DDD; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* LOADING */
+.loading { display: none; text-align: center; padding: 40px 20px; }
+.loading.show { display: block; }
+.loading-spinner { font-size: 36px; animation: spin 1s linear infinite; display: inline-block; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 15px; color: var(--ink2); font-weight: 600; }
+.loading-sub { font-size: 13px; color: var(--ink3); margin-top: 6px; }
+.progress-bar { background: var(--border); height: 6px; border-radius: 3px; margin: 20px auto; max-width: 300px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--orange); border-radius: 3px; width: 0%; transition: width 0.5s ease; }
+
+/* RESULTS */
+.results { display: none; }
+.results.show { display: block; animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+.results-header { background: var(--green-light); border: 1.5px solid #22C55E30; border-radius: var(--radius); padding: 20px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
+.results-header .check { font-size: 32px; }
+.results-header h3 { font-size: 18px; font-weight: 800; color: var(--green); margin-bottom: 2px; }
+.results-header p { font-size: 13px; color: var(--green); opacity: 0.8; }
+
+.btn-copy-all { width: 100%; background: var(--ink); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-bottom: 20px; transition: all 0.2s; }
+.btn-copy-all:hover { background: #333; }
+.btn-copy-all.ok { background: var(--green); }
+
+.post-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+.post-header { padding: 14px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.post-formato { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.post-dia { font-size: 12px; font-weight: 700; color: var(--ink2); margin-left: 4px; }
+.post-tema { font-size: 11px; color: var(--ink3); margin-left: auto; }
+.btn-copy { background: var(--bg); color: var(--ink2); border: 1.5px solid var(--border); border-radius: 8px; padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; flex-shrink: 0; }
+.btn-copy:hover { background: var(--orange); color: #fff; border-color: var(--orange); }
+.btn-copy.ok { background: var(--green-light); color: var(--green); border-color: #22C55E30; }
+
+/* IG PREVIEW */
+.ig-preview { background: #FAFAFA; }
+.ig-topbar { padding: 10px 14px; display: flex; align-items: center; gap: 10px; background: #fff; border-bottom: 1px solid #EEE; }
+.ig-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.ig-name { font-weight: 700; font-size: 13px; color: #111; }
+.ig-zona { font-size: 11px; color: #999; }
+.ig-img { height: 200px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; }
+.ig-img-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; opacity: 0.5; }
+.ig-actions { padding: 10px 14px 4px; display: flex; gap: 14px; background: #fff; }
+.ig-caption { padding: 10px 14px 16px; background: #fff; font-size: 13px; color: #111; line-height: 1.7; white-space: pre-wrap; }
+.ig-hashtags { color: #3B82F6; font-size: 13px; padding: 0 14px 14px; background: #fff; line-height: 1.9; }
+
+/* NUEVO BTN */
+.btn-nuevo { width: 100%; background: var(--bg); color: var(--ink2); border: 1.5px solid var(--border); padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; transition: all 0.2s; }
+.btn-nuevo:hover { border-color: var(--orange); color: var(--orange); }
+
+.error-box { background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: 12px; padding: 16px; color: #DC2626; font-size: 13px; margin-top: 12px; display: none; }
+.error-box.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">✦ POWERED BY CLAUDE AI</div>
+  <h1>Contenido para<br>tu negocio en <em>minutos</em></h1>
+  <p>Posts, stories y promos para Instagram generados con IA. Listos para copiar y publicar.</p>
+  <div class="hero-price">$20 <span>USD / mes · contenido ilimitado</span></div>
+  <div class="hero-note">Sin contratos · Cancelá cuando quieras · Pagá con Mercado Pago</div>
+</div>
+
+<!-- FORM -->
+<div class="form-wrap">
+
+  <div id="form-section">
+    <!-- PASO 1 -->
+    <div class="step-card">
+      <div class="step-num">PASO 1 DE 2</div>
+      <div class="step-title">Tu negocio</div>
+      <div class="step-desc">Completá estos datos y generamos el contenido personalizado para vos.</div>
+
+      <label>NOMBRE DEL NEGOCIO *</label>
+      <input type="text" id="nombre" placeholder="Ej: La Parrilla de Carlitos" maxlength="60">
+
+      <label>RUBRO *</label>
+      <select id="rubro">
+        <option value="">Elegí el rubro...</option>
+        <option>Restaurante / Parrilla</option>
+        <option>Café / Confitería</option>
+        <option>Gimnasio / Fitness</option>
+        <option>Pilates / Yoga / Wellness</option>
+        <option>Indumentaria / Moda</option>
+        <option>Calzado / Accesorios</option>
+        <option>Inmobiliaria</option>
+        <option>Clínica / Salud</option>
+        <option>Estética / Belleza</option>
+        <option>Ferretería / Materiales</option>
+        <option>Dietética / Naturista</option>
+        <option>Otro</option>
+      </select>
+
+      <label>ZONA / BARRIO</label>
+      <input type="text" id="zona" placeholder="Ej: Palermo, CABA">
+
+      <label>¿QUÉ LOS HACE ÚNICOS? (opcional)</label>
+      <textarea id="diferenciador" placeholder="Ej: 30 años de experiencia, productos artesanales, atención personalizada..."></textarea>
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="step-card">
+      <div class="step-num">PASO 2 DE 2</div>
+      <div class="step-title">Estilo de comunicación</div>
+      <div class="step-desc">¿Cómo querés sonar en redes?</div>
+
+      <div class="tono-grid" id="tono-grid">
+        <div class="tono-opt selected" onclick="selectTono(this, 'cercano')">
+          <div class="emoji">😊</div>
+          <div class="name">Cercano</div>
+          <div class="desc">Como un amigo que recomienda</div>
+        </div>
+        <div class="tono-opt" onclick="selectTono(this, 'profesional')">
+          <div class="emoji">💼</div>
+          <div class="name">Profesional</div>
+          <div class="desc">Serio y confiable</div>
+        </div>
+        <div class="tono-opt" onclick="selectTono(this, 'energico')">
+          <div class="emoji">⚡</div>
+          <div class="name">Enérgico</div>
+          <div class="desc">Dinámico, con ganas</div>
+        </div>
+        <div class="tono-opt" onclick="selectTono(this, 'elegante')">
+          <div class="emoji">✨</div>
+          <div class="name">Elegante</div>
+          <div class="desc">Sofisticado y aspiracional</div>
+        </div>
+      </div>
+
+      <button class="btn-generar" id="btn-generar" onclick="generar()">
+        ✦ Generar mi contenido gratis
+      </button>
+      <div class="error-box" id="error-box"></div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="loading-spinner">✦</div>
+    <div class="loading-text" id="loading-text">Analizando tu negocio...</div>
+    <div class="loading-sub" id="loading-sub">Claude está creando contenido personalizado</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <div class="check">🎉</div>
+      <div>
+        <h3>¡Tu contenido está listo!</h3>
+        <p id="results-desc">4 posts listos para publicar esta semana</p>
+      </div>
+    </div>
+
+    <button class="btn-copy-all" id="btn-copy-all" onclick="copyAll()">Copiar todo el contenido</button>
+    <div id="posts-container"></div>
+    <button class="btn-nuevo" onclick="reset()">↺ Generar para otro negocio</button>
+  </div>
+
+</div>
+
+<script>
+let tonoSeleccionado = 'cercano';
+let postsGenerados = [];
+
+const PROXY_URL = 'https://api.anthropic.com/v1/messages';
+const API_KEY = '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'; // ← Reemplazás esto con tu key
+
+const FORMATO_META = {
+  post: { label: 'Post', icon: '📸', color: '#6366F1', bg: '#F0F0FF' },
+  story: { label: 'Story', icon: '🎬', color: '#EC4899', bg: '#FFF0F7' },
+  promo: { label: 'Promo', icon: '🔥', color: '#F97316', bg: '#FFF7F0' },
+};
+
+function selectTono(el, tono) {
+  document.querySelectorAll('.tono-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  tonoSeleccionado = tono;
+}
+
+function setProgress(pct, text, sub) {
+  document.getElementById('progress-fill').style.width = pct + '%';
+  if (text) document.getElementById('loading-text').textContent = text;
+  if (sub) document.getElementById('loading-sub').textContent = sub;
+}
+
+async function generar() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const rubro = document.getElementById('rubro').value;
+  const zona = document.getElementById('zona').value.trim();
+  const diferenciador = document.getElementById('diferenciador').value.trim();
+  const errorBox = document.getElementById('error-box');
+
+  errorBox.classList.remove('show');
+
+  if (!nombre) { errorBox.textContent = 'Por favor ingresá el nombre del negocio.'; errorBox.classList.add('show'); return; }
+  if (!rubro) { errorBox.textContent = 'Por favor elegí el rubro.'; errorBox.classList.add('show'); return; }
+
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+
+  setProgress(15, 'Analizando tu negocio...', 'Claude está procesando la información');
+
+  const tonoLabel = {
+    cercano: 'Cercano y cálido, como un amigo que recomienda',
+    profesional: 'Profesional y confiable',
+    energico: 'Enérgico y dinámico',
+    elegante: 'Elegante y aspiracional'
+  }[tonoSeleccionado];
+
+  try {
+    setProgress(40, 'Creando los posts...', 'Esto tarda menos de 30 segundos');
+
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `Generá 4 posts de Instagram para este negocio argentino. Respondé SOLO en JSON válido sin markdown.
+
+NEGOCIO: ${nombre}
+RUBRO: ${rubro}
+ZONA: ${zona || 'Argentina'}
+TONO: ${tonoLabel}
+DIFERENCIADOR: ${diferenciador || 'No especificado'}
+
+Días: Lunes, Miércoles, Viernes, Sábado.
+Formatos en orden: post, story, promo, post.
+
+Cada post debe ser ESPECÍFICO y AUTÉNTICO. Español rioplatense. Emojis naturales. Caption completo listo para publicar.
+
+{"posts":[{"dia":"Lunes","formato":"post","tema":"tema corto","contenido":"caption completo con saltos de línea naturales","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5"]},{"dia":"Miércoles","formato":"story","tema":"tema corto","contenido":"texto gancho para story","hashtags":["#tag1","#tag2","#tag3","#tag4"]},{"dia":"Viernes","formato":"promo","tema":"tema corto","contenido":"texto de promo con urgencia","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5"]},{"dia":"Sábado","formato":"post","tema":"tema corto","contenido":"caption completo","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5"]}]}`
+        }]
+      })
+    });
+
+    setProgress(80, 'Puliendo el contenido...', 'Casi listo');
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '{}';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    postsGenerados = parsed.posts || [];
+    setProgress(100, '¡Listo!', '');
+
+    await new Promise(r => setTimeout(r, 500));
+
+    mostrarResultados(nombre, rubro);
+
+  } catch (e) {
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('form-section').style.display = 'block';
+    errorBox.textContent = 'Hubo un error generando el contenido. Verificá tu conexión e intentá de nuevo.';
+    errorBox.classList.add('show');
+  }
+}
+
+function mostrarResultados(nombre, rubro) {
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results-desc').textContent = `4 posts listos para ${nombre} esta semana`;
+
+  const container = document.getElementById('posts-container');
+  container.innerHTML = '';
+
+  const colors = { post: '#6366F1', story: '#EC4899', promo: '#F97316' };
+  const bgs = { post: '#F0F0FF', story: '#FFF0F7', promo: '#FFF7F0' };
+  const icons = { post: '📸', story: '🎬', promo: '🔥' };
+  const emoji = rubro.includes('Parrilla') || rubro.includes('Restaurante') ? '🥩' : rubro.includes('Gym') || rubro.includes('Fitness') ? '💪' : rubro.includes('Pilates') || rubro.includes('Yoga') ? '🧘' : rubro.includes('Ropa') || rubro.includes('Moda') ? '👗' : rubro.includes('Clínica') ? '🏥' : rubro.includes('Estética') ? '💆' : '🏪';
+
+  postsGenerados.forEach((p, i) => {
+    const f = p.formato || 'post';
+    const color = colors[f] || '#6366F1';
+    const bg = bgs[f] || '#F0F0FF';
+    const icon = icons[f] || '📸';
+    const fullText = p.contenido + '\n\n' + (p.hashtags || []).join(' ');
+
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.style.animationDelay = (i * 0.08) + 's';
+    card.innerHTML = `
+      <div class="post-header">
+        <span class="post-formato" style="background:${bg};color:${color}">${icon} ${f.toUpperCase()}</span>
+        <span class="post-dia">${p.dia}</span>
+        <span class="post-tema">${p.tema || ''}</span>
+        <button class="btn-copy" onclick="copyPost(this, ${i})">Copiar</button>
+      </div>
+      <div class="ig-preview">
+        <div class="ig-topbar">
+          <div class="ig-avatar" style="background:linear-gradient(135deg,${color}30,${color}50)">${emoji}</div>
+          <div><div class="ig-name">${nombre}</div></div>
+          <div style="margin-left:auto;font-size:18px;color:#888">•••</div>
+        </div>
+        <div class="ig-img" style="background:linear-gradient(135deg,${color}10,${color}20)">
+          <span style="font-size:48px">${emoji}</span>
+          <div class="ig-img-label">IMAGEN / VIDEO</div>
+        </div>
+        <div class="ig-actions">❤️ 💬 ↗️ <span style="margin-left:auto">🔖</span></div>
+        <div class="ig-caption"><strong>${nombre}</strong> ${p.contenido}</div>
+        <div class="ig-hashtags">${(p.hashtags || []).join(' ')}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function copyPost(btn, idx) {
+  const p = postsGenerados[idx];
+  const text = p.contenido + '\n\n' + (p.hashtags || []).join(' ');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+function copyAll() {
+  const all = postsGenerados.map(p =>
+    `━━ ${p.dia.toUpperCase()} · ${(p.formato||'').toUpperCase()} ━━\n\n${p.contenido}\n\n${(p.hashtags||[]).join(' ')}`
+  ).join('\n\n\n');
+  navigator.clipboard.writeText(all).then(() => {
+    const btn = document.getElementById('btn-copy-all');
+    btn.textContent = '✓ ¡Todo copiado!';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copiar todo el contenido'; btn.classList.remove('ok'); }, 2500);
+  });
+}
+
+function reset() {
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('nombre').value = '';
+  document.getElementById('rubro').value = '';
+  document.getElementById('zona').value = '';
+  document.getElementById('diferenciador').value = '';
+  postsGenerados = [];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
